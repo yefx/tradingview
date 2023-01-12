@@ -1,0 +1,41 @@
+//@version=5
+indicator("diy HVol", shorttitle="HVol", max_bars_back=2000, format=format.volume)
+
+length          = input.int(610, title="MA Length",  minval=2)
+slength         = input.int(610, title='Std Length', minval=2)
+osc             = input(false, 'Show as oscillator')
+
+thresholdExtraHigh  = input.int(4, title="Threshold")
+
+chm1 = #ff0000 
+chm2 = #000000 
+
+length := math.min(length, bar_index + 1)
+slength := math.min(slength, bar_index + 1)
+
+pstdev(series, period) =>
+    mean = math.sum(series, period) / period
+    summation = 0.0
+    for i=0 to period-1
+        sampleMinusMean = series[i] - mean
+        summation := summation + sampleMinusMean * sampleMinusMean
+    math.sqrt(summation / period)
+mean = ta.sma(volume, length)
+std = pstdev(volume, slength)
+stdbar = (volume - mean) / std
+dir = close > open
+v = osc ? volume - mean : volume
+
+// x = stdbar > thresholdExtraHigh ? (dir ? chm1 : chm2) : chm2
+
+// plot(v, color=x, style=plot.style_columns, title='Volume', editable=false)
+
+var x = chm2
+if stdbar > thresholdExtraHigh
+    if dir
+        var xi = chm1
+        x := xi
+else 
+    var xi = chm2
+    x := xi
+plot(v, color=x, style=plot.style_columns, title='Volume', editable=false)
