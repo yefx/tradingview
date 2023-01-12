@@ -1,0 +1,26 @@
+//@version=5
+indicator("diyTB",overlay=true)
+length = int(24)
+k      = input.float(0.,'Slope',minval=0,step=.1)
+method = 'Atr'
+show   = input(false,'Show Only Confirmed Breakouts')
+//----
+upper = 0.,lower = 0.
+slope_ph = 0.,slope_pl = 0.
+src = close
+n = bar_index
+//----
+ph = ta.pivothigh(length,length)
+pl = ta.pivotlow(length,length)
+slope = switch method
+    'Atr'      => ta.atr(length)/length*k
+
+slope_ph := ph ? slope : slope_ph[1]
+slope_pl := pl ? slope : slope_pl[1]
+
+upper := ph ? ph : upper[1] - slope_ph
+lower := pl ? pl : lower[1] + slope_pl
+
+plot(upper,'Upper',color = ph ? na : #ffffff,offset=-length)
+plot(lower,'Lower',color = pl ? na : #ffffff,offset=-length)
+
